@@ -1,11 +1,15 @@
 package otp.junctionx.atm.finder.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
-import otp.junctionx.atm.finder.dto.AllAtmResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import otp.junctionx.atm.finder.dto.AtmResponse;
+import otp.junctionx.atm.finder.dto.AtmLocationResponse;
+import otp.junctionx.atm.finder.dto.SearchRequest;
 import otp.junctionx.atm.finder.service.AtmFinderService;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -17,14 +21,25 @@ public class AtmFinderController {
         this.service = service;
     }
 
-    @GetMapping("/all-atm/{deposit}")
-    public AllAtmResponse add(@PathVariable String deposit) {
-        log.info("Get http request through /all-atm/{deposit} url path.");
-        if (deposit.equals("true"))
-            return AllAtmResponse.builder().test("yeah its true").build();
-        else
-            return AllAtmResponse.builder().test("yeah its false").build();
-
+    @PostMapping("/all-atm")
+    public AtmResponse getAllAtmWithAllInfo(@Valid @RequestBody SearchRequest searchRequest) {
+        log.info("Post http request through /all-atm url path.");
+        return service.getAllAtmWithAllInfo(searchRequest);
     }
+
+    @GetMapping("/atm-location")
+    public List<AtmLocationResponse> getAllAtmLocations() {
+        log.info("Get http request through /atm-location url path.");
+        return service.getAllAtmLocations();
+    }
+    
+    @GetMapping("/selected-atm/{id}")
+    public HttpStatus writeSelectedAtm(@PathVariable String id) {
+        log.info("Get http request through /selected-atm/{id} url path.");
+        service.writeSelectedAtm(id);
+        return HttpStatus.OK;
+    }
+
+
 
 }

@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AllAtmResponse {
+public class AtmLocationResponse {
 
-    public String test;
+    public String id;
+    public Coord coord;
+    public boolean isDepositAvailable;
 
 }
