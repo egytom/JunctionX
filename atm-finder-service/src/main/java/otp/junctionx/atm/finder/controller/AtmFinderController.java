@@ -11,6 +11,8 @@ import otp.junctionx.atm.finder.service.AtmFinderService;
 import javax.validation.Valid;
 import java.util.List;
 
+import static otp.junctionx.atm.finder.util.MapperUtil.mapAtmDataListToAtmLocationResponseList;
+
 @Slf4j
 @RestController
 public class AtmFinderController {
@@ -22,7 +24,7 @@ public class AtmFinderController {
     }
 
     @PostMapping("/all-atm")
-    public AtmResponse getAllAtmWithAllInfo(@Valid @RequestBody SearchRequest searchRequest) {
+    public List<AtmResponse> getAllAtmWithAllInfo(@Valid @RequestBody SearchRequest searchRequest) {
         log.info("Post http request through /all-atm url path.");
         return service.getAllAtmWithAllInfo(searchRequest);
     }
@@ -30,7 +32,7 @@ public class AtmFinderController {
     @GetMapping("/atm-location")
     public List<AtmLocationResponse> getAllAtmLocations() {
         log.info("Get http request through /atm-location url path.");
-        return service.getAllAtmLocations();
+        return mapAtmDataListToAtmLocationResponseList(service.getAllAtmLocations());
     }
     
     @GetMapping("/selected-atm/{id}")

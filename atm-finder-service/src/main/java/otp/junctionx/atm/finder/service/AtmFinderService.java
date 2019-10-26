@@ -4,16 +4,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import otp.junctionx.atm.finder.dto.AtmData;
-import otp.junctionx.atm.finder.dto.AtmResponse;
-import otp.junctionx.atm.finder.dto.AtmLocationResponse;
-import otp.junctionx.atm.finder.dto.SearchRequest;
+import otp.junctionx.atm.finder.dto.*;
+import otp.junctionx.atm.finder.model.Atm;
 import otp.junctionx.atm.finder.repository.AtmRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,20 +24,47 @@ public class AtmFinderService {
         this.repository = repository;
     }
 
-    public AtmResponse getAllAtmWithAllInfo(SearchRequest searchRequest) {
-        if (searchRequest.isDepositRequired)
-            return AtmResponse.builder().id("yeah its true").build();
-        else
-            return AtmResponse.builder().id("yeah its false").build();
+    public List<AtmResponse> getAllAtmWithAllInfo(SearchRequest searchRequest) {
+        /*
+        ObjectMapper mapper = new ObjectMapper();
 
+        try {
+            GoogleMapsData googleMapsData = mapper.readValue("", GoogleMapsData.class);
+
+            List<AtmData> atmData = readAtmLocationResponseFromJson();
+            return Arrays.asList(AtmResponse.builder().coord(atmData.get(0).coord).build());
+        } catch (IOException ioe) {
+            log.info("Json reading failed.");
+            return Arrays.asList(new AtmResponse());
+        }
+
+        if (searchRequest.isDepositRequired)
+            return Arrays.asList(AtmResponse.builder().id("yeah its true").build());
+        else
+            return Arrays.asList(AtmResponse.builder().id("yeah its false").build());
+         */
+        return null;
     }
 
-    public List<AtmLocationResponse> getAllAtmLocations() {
-        List<AtmData> atmData = readAtmLocationResponseFromJson();
-        return Arrays.asList(AtmLocationResponse.builder().coord(atmData.get(0).coord).build());
+    public List<AtmData> getAllAtmLocations() {
+        return readAtmLocationResponseFromJson();
     }
 
     public void writeSelectedAtm(String id) {
+        Optional<Atm> atmOptional = repository.findById(id);
+        Atm atm;
+
+        if (atmOptional.isPresent()) {
+            atm = atmOptional.get();
+            int customerCount = atm.getExpectedCustomers();
+            atm.setExpectedCustomers(customerCount + 1);
+        } else {
+            atm = new Atm();
+            atm.setId(id);
+            atm.setExpectedCustomers(1);
+        }
+
+        repository.save(atm);
     }
 
     private List<AtmData> readAtmLocationResponseFromJson() {

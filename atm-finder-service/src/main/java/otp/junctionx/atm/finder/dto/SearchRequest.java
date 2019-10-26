@@ -18,6 +18,9 @@ public class SearchRequest {
     public String dayName;
 
     @NotNull
+    public int section;
+
+    @NotNull
     public boolean isDepositRequired;
 
 }
