@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import otp.junctionx.atm.finder.dto.*;
+import otp.junctionx.atm.finder.dto.helper.AtmData;
+import otp.junctionx.atm.finder.dto.helper.AtmResult;
+import otp.junctionx.atm.finder.dto.helper.Coord;
+import otp.junctionx.atm.finder.dto.helper.google.GoogleMapsData;
 import otp.junctionx.atm.finder.model.Atm;
 import otp.junctionx.atm.finder.repository.AtmRepository;
 

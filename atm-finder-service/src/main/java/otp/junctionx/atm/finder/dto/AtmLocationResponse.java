@@ -3,6 +3,7 @@ package otp.junctionx.atm.finder.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import otp.junctionx.atm.finder.dto.helper.Coord;
 
 @Builder
 @NoArgsConstructor

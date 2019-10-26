@@ -1,6 +1,8 @@
-package otp.junctionx.atm.finder.dto;
+package otp.junctionx.atm.finder.dto.helper;
 
 import lombok.*;
+import otp.junctionx.atm.finder.dto.helper.Address;
+import otp.junctionx.atm.finder.dto.helper.Coord;
 
 import java.util.List;
 

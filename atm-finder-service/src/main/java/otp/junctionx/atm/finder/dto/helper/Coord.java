@@ -1,4 +1,4 @@
-package otp.junctionx.atm.finder.dto;
+package otp.junctionx.atm.finder.dto.helper;
 
 import lombok.*;
 

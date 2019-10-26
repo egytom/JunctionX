@@ -1,6 +1,6 @@
 package otp.junctionx.atm.finder.util;
 
-import otp.junctionx.atm.finder.dto.AtmData;
+import otp.junctionx.atm.finder.dto.helper.AtmData;
 import otp.junctionx.atm.finder.dto.AtmLocationResponse;
 
 import java.util.ArrayList;

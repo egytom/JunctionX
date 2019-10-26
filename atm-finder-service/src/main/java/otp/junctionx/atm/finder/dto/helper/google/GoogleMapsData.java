@@ -1,7 +1,8 @@
-package otp.junctionx.atm.finder.dto;
+package otp.junctionx.atm.finder.dto.helper.google;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import otp.junctionx.atm.finder.dto.helper.google.Row;
 
 import java.util.List;
 
