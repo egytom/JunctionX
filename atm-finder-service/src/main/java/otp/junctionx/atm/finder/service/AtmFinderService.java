@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 public class AtmFinderService {
 
-    AtmRepository repository;
+    private AtmRepository repository;
 
     public AtmFinderService(AtmRepository repository) {
         this.repository = repository;
@@ -70,10 +70,9 @@ public class AtmFinderService {
     private List<AtmData> readAtmLocationResponseFromJson() {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            List<AtmData> atmData = mapper.readValue(new File("\\files\\data.json"), new TypeReference<List<AtmData>>() {});
-            return Arrays.asList(AtmData.builder().coord(atmData.get(0).coord).build());
+            return mapper.readValue(new File("\\files\\data.json"), new TypeReference<List<AtmData>>() {});
         } catch (IOException ioe) {
-            log.info("Json reading failed.");
+            log.info("Json reading failed. Error: " + ioe.getMessage());
             return Arrays.asList(new AtmData());
         }
     }

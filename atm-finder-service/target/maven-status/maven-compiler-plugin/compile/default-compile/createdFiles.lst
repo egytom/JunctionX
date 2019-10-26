@@ -1,8 +1,10 @@
+otp/junctionx/atm/finder/dto/GoogleMapsData.class
 otp/junctionx/atm/finder/dto/Coord.class
 otp/junctionx/atm/finder/dto/AtmLocationResponse.class
 otp/junctionx/atm/finder/dto/AtmResponse$AtmResponseBuilder.class
 otp/junctionx/atm/finder/dto/AtmData$AtmDataBuilder.class
 otp/junctionx/atm/finder/dto/SearchRequest.class
+otp/junctionx/atm/finder/util/MapperUtil.class
 otp/junctionx/atm/finder/dto/Address.class
 otp/junctionx/atm/finder/dto/Coord$CoordBuilder.class
 otp/junctionx/atm/finder/dto/AtmData.class
@@ -12,6 +14,7 @@ otp/junctionx/atm/finder/controller/AtmFinderController.class
 otp/junctionx/atm/finder/repository/AtmRepository.class
 otp/junctionx/atm/finder/service/AtmFinderService$1.class
 otp/junctionx/atm/finder/dto/AtmResponse.class
+otp/junctionx/atm/finder/dto/GoogleMapsData$GoogleMapsDataBuilder.class
 otp/junctionx/atm/finder/AtmFinderApplication.class
 otp/junctionx/atm/finder/dto/AtmLocationResponse$AtmLocationResponseBuilder.class
 otp/junctionx/atm/finder/service/AtmFinderService.class

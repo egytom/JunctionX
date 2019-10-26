@@ -14,13 +14,19 @@ public class MapperUtil {
     public static List<AtmLocationResponse> mapAtmDataListToAtmLocationResponseList(List<AtmData> atmDataList) {
         List<AtmLocationResponse> atmLocationResponseList = new ArrayList<>();
         for (AtmData atmData : atmDataList) {
-            atmLocationResponseList.add(
-                    AtmLocationResponse.builder()
-                            .coord(atmData.coord)
-                            .id(atmData.id)
-                            .isDepositAvailable(atmData.deposit)
-                            .build()
-            );
+            AtmLocationResponse response = new AtmLocationResponse();
+
+            if (atmData.coord != null) {
+                response.coord = atmData.coord;
+            }
+            if (atmData.deposit != null) {
+                response.isDepositAvailable = atmData.deposit;
+            }
+            if (atmData.id != null) {
+                response.id = atmData.id;
+            }
+
+            atmLocationResponseList.add(response);
         }
         return atmLocationResponseList;
     }

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: atm-finder
-        image: egytom/atm-finder:1.3
+        image: egytom/atm-finder:1.4
         ports:
         - containerPort: 8080
         env:
