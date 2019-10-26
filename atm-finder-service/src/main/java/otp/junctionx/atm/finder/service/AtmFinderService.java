@@ -10,13 +10,16 @@ import otp.junctionx.atm.finder.repository.AtmRepository;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.net.URL;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class AtmFinderService {
+
+    private int relevantAtmCount = 3;
+    private int averageCustomerTimeInSeconds = 45;
 
     private AtmRepository repository;
 
@@ -25,25 +28,26 @@ public class AtmFinderService {
     }
 
     public List<AtmResponse> getAllAtmWithAllInfo(SearchRequest searchRequest) {
-        /*
         ObjectMapper mapper = new ObjectMapper();
-
         try {
-            GoogleMapsData googleMapsData = mapper.readValue("", GoogleMapsData.class);
+            List<AtmData> atmDataList = readAtmLocationResponseFromJson();
+            List<AtmResult> closestAtms;
+            List<AtmResponse> response;
 
-            List<AtmData> atmData = readAtmLocationResponseFromJson();
-            return Arrays.asList(AtmResponse.builder().coord(atmData.get(0).coord).build());
+            if (searchRequest.isDepositRequired) {
+                List<AtmData> filteredAtmDataList = atmDataList.stream().filter(a -> a.deposit).collect(Collectors.toList());
+                closestAtms = getClosestAtms(searchRequest, filteredAtmDataList, mapper);
+                response = getAtmResponse(searchRequest, closestAtms, filteredAtmDataList);
+            } else {
+                closestAtms = getClosestAtms(searchRequest, atmDataList, mapper);
+                response = getAtmResponse(searchRequest, closestAtms, atmDataList);
+            }
+
+            return response;
         } catch (IOException ioe) {
-            log.info("Json reading failed.");
+            log.info("Json reading failed. Error: " + ioe.getMessage());
             return Arrays.asList(new AtmResponse());
         }
-
-        if (searchRequest.isDepositRequired)
-            return Arrays.asList(AtmResponse.builder().id("yeah its true").build());
-        else
-            return Arrays.asList(AtmResponse.builder().id("yeah its false").build());
-         */
-        return null;
     }
 
     public List<AtmData> getAllAtmLocations() {
@@ -70,11 +74,105 @@ public class AtmFinderService {
     private List<AtmData> readAtmLocationResponseFromJson() {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            return mapper.readValue(new File("\\files\\data.json"), new TypeReference<List<AtmData>>() {});
+            return mapper.readValue(new File("files" + File.separator + "data.json"), new TypeReference<List<AtmData>>() {
+            });
         } catch (IOException ioe) {
             log.info("Json reading failed. Error: " + ioe.getMessage());
             return Arrays.asList(new AtmData());
         }
+    }
+
+    private List<AtmResult> getClosestAtms(SearchRequest searchRequest, List<AtmData> atmDataList, ObjectMapper mapper) throws IOException {
+        HashMap<String, Integer> mapSeconds = new HashMap<>();
+        for (AtmData atmData : atmDataList) {
+            String url = getUrl(searchRequest.coord, atmData.coord);
+            GoogleMapsData googleMapsData = mapper.readValue(new URL(url), GoogleMapsData.class);
+            mapSeconds.put(atmData.id, googleMapsData.rows.get(0).elements.get(0).duration.value);
+        }
+
+        List<String> lowestIDs = mapSeconds.entrySet()
+                .stream()
+                .sorted(Comparator.comparing(Map.Entry::getValue))
+                .limit(relevantAtmCount)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        List<AtmResult> atmResults = new ArrayList<>();
+        for (String id : lowestIDs) {
+            AtmResult atmResult = AtmResult.builder().id(id).travelSeconds(mapSeconds.get(id)).build();
+            atmResults.add(atmResult);
+        }
+
+        return atmResults;
+    }
+
+    private String getUrl(Coord startCoord, Coord destinationCoord) {
+        return "https://maps.googleapis.com/maps/api/distancematrix/json?units=kilometers&origins="
+                + startCoord.x + "%2C" + startCoord.y +
+                "&mode=walking&key=AIzaSyDVH3Psi4cx-yp4-CVzsOYl3yMFSiR3lIA&destinations="
+                + destinationCoord.x + "%2C" + destinationCoord.y;
+    }
+
+    private List<AtmResponse> getAtmResponse(SearchRequest searchRequest, List<AtmResult> closestAtms, List<AtmData> atmDataList) {
+        List<AtmResponse> response = new ArrayList<>();
+
+        for (AtmResult atmResult : closestAtms) {
+            String id = atmResult.id;
+            AtmResponse atmResponse = AtmResponse.builder()
+                    .id(id)
+                    .countOfFutureCustomers(getFutureCustomersCount(id))
+                    .build();
+
+            Optional<AtmData> atmData = atmDataList.stream().filter(a -> a.id.equals(id)).findFirst();
+
+            int waitingSeconds;
+            if (atmData.isPresent()) {
+                AtmData data = atmData.get();
+                atmResponse.address = data.address;
+                atmResponse.coord = data.coord;
+                atmResponse.date = data.date;
+                atmResponse.day = data.day;
+                atmResponse.isDepositAvailable = data.deposit;
+
+                waitingSeconds = atmResult.travelSeconds + data.sections.get(searchRequest.section) * averageCustomerTimeInSeconds;
+            } else {
+                waitingSeconds = atmResult.travelSeconds;
+            }
+            atmResponse.queueAndTravelTime = getTimeStringFromSeconds(waitingSeconds);
+
+            response.add(atmResponse);
+        }
+
+        return response;
+    }
+
+    private int getFutureCustomersCount(String id) {
+        Optional<Atm> atmOptional = repository.findById(id);
+        Atm atm;
+
+        if (atmOptional.isPresent()) {
+            atm = atmOptional.get();
+            return atm.getExpectedCustomers();
+        } else {
+            atm = new Atm();
+            atm.setId(id);
+            atm.setExpectedCustomers(0);
+            repository.save(atm);
+            return 0;
+        }
+    }
+
+    private String getTimeStringFromSeconds(long seconds) {
+        int hours = (int) seconds / 3600;
+        int remainder = (int) seconds - hours * 3600;
+        int mins = remainder / 60;
+
+        if (hours > 0) {
+            return hours + " hours " + mins + " minutes";
+        } else {
+            return mins + " minutes";
+        }
+
     }
 
 }

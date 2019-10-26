@@ -1,14 +1,25 @@
 package otp.junctionx.atm.finder.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
+import java.util.List;
+
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GoogleMapsData {
 
-    private String test;
+    @JsonProperty("destination_addresses")
+    public List<String> destinationAddresses;
+
+    @JsonProperty("origin_addresses")
+    public List<String> originAddresses;
+
+    public List<Row> rows;
+
+    public String status;
 
 }

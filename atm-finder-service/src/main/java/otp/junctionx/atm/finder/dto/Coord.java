@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class Coord {
 
-    private int x;
-    private int y;
+    public double x;
+    public double y;
 
 }

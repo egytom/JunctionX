@@ -5,6 +5,8 @@ or
 `minikube config set vm-driver kvm2`
 `minikube start`
 
+`kubectl create clusterrolebinding admin --clusterrole=cluster-admin --serviceaccount=default:default`
+
 from project root:
 
 `kubectl apply -f kubernetes/mongodb-configmap.yaml`
