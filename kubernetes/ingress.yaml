@@ -9,7 +9,7 @@ spec:
     serviceName: default-http-backend
     servicePort: 80
   rules:
-  - host: microservice.info
+  - host: microservices.info
     http:
       paths:
       - path: /atm-finder

@@ -14,10 +14,10 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+@EnableSwagger2
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableMongoRepositories
-@EnableSwagger2
 public class AtmFinderApplication {
 
     @Autowired
@@ -34,7 +34,7 @@ public class AtmFinderApplication {
                 .apis(RequestHandlerSelectors.basePackage("otp.junctionx.atm.finder.controller"))
                 .paths(PathSelectors.any())
                 .build()
-                .apiInfo(new ApiInfoBuilder().version("1.0").title("ATM finder API").description("Documentation ATM finder API v1.0").build());
+                .apiInfo(new ApiInfoBuilder().version("2.0").title("ATM finder API").description("Documentation ATM finder API v2.0").build());
     }
 
 }
