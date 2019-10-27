@@ -37,7 +37,7 @@ public class AtmFinderTest {
     }
 
     @Test
-    public void getAllAtmWithAllInfoTest() {
+    public void getAllAtmWithAllInfoDepositTrueTest() {
         SearchRequest searchRequest = SearchRequest.builder()
                 .coord(Coord.builder().x(47.4648836).y(19.0228743).build())
                 .dayName("SATURDAY")
@@ -51,6 +51,26 @@ public class AtmFinderTest {
         assertNotNull(result);
         assertEquals(3, result.size());
         assertEquals(4L, result.get(0).countOfFutureCustomers.longValue());
+        assertEquals(true, result.get(0).isDepositAvailable);
+        assert(result.get(0).queueAndTravelTime.contains("min"));
+    }
+
+    @Test
+    public void getAllAtmWithAllInfoDepositFalseTest() {
+        SearchRequest searchRequest = SearchRequest.builder()
+                .coord(Coord.builder().x(47.4648836).y(19.0228743).build())
+                .dayName("SATURDAY")
+                .isDepositRequired(false)
+                .section(20)
+                .build();
+        when(repository.findById(anyString())).thenReturn(Optional.of(new Atm("2", 4)));
+
+        List<AtmResponse> result = service.getAllAtmWithAllInfo(searchRequest);
+
+        assertNotNull(result);
+        assertEquals(3, result.size());
+        assertEquals(4L, result.get(0).countOfFutureCustomers.longValue());
+        assertEquals(false, result.get(0).isDepositAvailable);
         assert(result.get(0).queueAndTravelTime.contains("min"));
     }
 
