@@ -8,6 +8,7 @@ import otp.junctionx.atm.finder.dto.*;
 import otp.junctionx.atm.finder.dto.helper.AtmData;
 import otp.junctionx.atm.finder.dto.helper.AtmResult;
 import otp.junctionx.atm.finder.dto.helper.Coord;
+import otp.junctionx.atm.finder.dto.helper.google.Element;
 import otp.junctionx.atm.finder.dto.helper.google.GoogleMapsData;
 import otp.junctionx.atm.finder.model.Atm;
 import otp.junctionx.atm.finder.repository.AtmRepository;
@@ -88,10 +89,13 @@ public class AtmFinderService {
 
     private List<AtmResult> getClosestAtms(SearchRequest searchRequest, List<AtmData> atmDataList, ObjectMapper mapper) throws IOException {
         HashMap<String, Integer> mapSeconds = new HashMap<>();
-        for (AtmData atmData : atmDataList) {
-            String url = getUrl(searchRequest.coord, atmData.coord);
-            GoogleMapsData googleMapsData = mapper.readValue(new URL(url), GoogleMapsData.class);
-            mapSeconds.put(atmData.id, googleMapsData.rows.get(0).elements.get(0).duration.value);
+        List<Coord> destCoords = atmDataList.stream().map(a -> a.coord).collect(Collectors.toList());
+        String url = getUrl(searchRequest.coord, destCoords);
+        GoogleMapsData googleMapsData = mapper.readValue(new URL(url), GoogleMapsData.class);
+
+        int num = 0;
+        for (Element e : googleMapsData.rows.get(0).elements) {
+            mapSeconds.put(atmDataList.get(num++).id, e.duration.value);
         }
 
         List<String> lowestIDs = mapSeconds.entrySet()
@@ -110,21 +114,30 @@ public class AtmFinderService {
         return atmResults;
     }
 
-    private String getUrl(Coord startCoord, Coord destinationCoord) {
+    private String getUrl(Coord startCoord, List<Coord> destinationCoordList) {
+        String destinations = "";
+        for (int i = 0; i < destinationCoordList.size(); i++) {
+            destinations += destinationCoordList.get(i).x + "%2C" + destinationCoordList.get(i).y;
+            if (i != destinationCoordList.size()-1) {
+                destinations += "|";
+            }
+        }
+
         return "https://maps.googleapis.com/maps/api/distancematrix/json?units=kilometers&origins="
                 + startCoord.x + "%2C" + startCoord.y +
                 "&mode=walking&key=AIzaSyDVH3Psi4cx-yp4-CVzsOYl3yMFSiR3lIA&destinations="
-                + destinationCoord.x + "%2C" + destinationCoord.y;
+                + destinations;
     }
 
     private List<AtmResponse> getAtmResponse(SearchRequest searchRequest, List<AtmResult> closestAtms, List<AtmData> atmDataList) {
         List<AtmResponse> response = new ArrayList<>();
+        Map<String, Integer> atmMap = getFutureCustomersCount();
 
         for (AtmResult atmResult : closestAtms) {
             String id = atmResult.id;
             AtmResponse atmResponse = AtmResponse.builder()
                     .id(id)
-                    .countOfFutureCustomers(getFutureCustomersCount(id))
+                    .countOfFutureCustomers(atmMap.getOrDefault(id,0))
                     .build();
 
             Optional<AtmData> atmData = atmDataList.stream().filter(a -> a.id.equals(id)).findFirst();
@@ -150,20 +163,9 @@ public class AtmFinderService {
         return response;
     }
 
-    private int getFutureCustomersCount(String id) {
-        Optional<Atm> atmOptional = repository.findById(id);
-        Atm atm;
-
-        if (atmOptional.isPresent()) {
-            atm = atmOptional.get();
-            return atm.getExpectedCustomers();
-        } else {
-            atm = new Atm();
-            atm.setId(id);
-            atm.setExpectedCustomers(0);
-            repository.save(atm);
-            return 0;
-        }
+    private Map<String, Integer>  getFutureCustomersCount() {
+        List<Atm> atmList = repository.findAll();
+        return atmList.stream().collect(Collectors.toMap(Atm::getId, Atm::getExpectedCustomers));
     }
 
     private String getTimeStringFromSeconds(long seconds) {

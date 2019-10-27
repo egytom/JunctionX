@@ -12,12 +12,11 @@ import otp.junctionx.atm.finder.dto.helper.Coord;
 import otp.junctionx.atm.finder.model.Atm;
 import otp.junctionx.atm.finder.repository.AtmRepository;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,40 +37,47 @@ public class AtmFinderTest {
 
     @Test
     public void getAllAtmWithAllInfoDepositTrueTest() {
-        SearchRequest searchRequest = SearchRequest.builder()
-                .coord(Coord.builder().x(47.4648836).y(19.0228743).build())
-                .dayName("SATURDAY")
-                .isDepositRequired(true)
-                .section(20)
-                .build();
-        when(repository.findById(anyString())).thenReturn(Optional.of(new Atm("2", 4)));
+        SearchRequest searchRequest = getSearchRequest(true);
+        List<Atm> atmList = getAtmList();
+        when(repository.findAll()).thenReturn(atmList);
 
         List<AtmResponse> result = service.getAllAtmWithAllInfo(searchRequest);
 
         assertNotNull(result);
         assertEquals(3, result.size());
-        assertEquals(4L, result.get(0).countOfFutureCustomers.longValue());
         assertEquals(true, result.get(0).isDepositAvailable);
         assert(result.get(0).queueAndTravelTime.contains("min"));
     }
 
     @Test
     public void getAllAtmWithAllInfoDepositFalseTest() {
-        SearchRequest searchRequest = SearchRequest.builder()
-                .coord(Coord.builder().x(47.4648836).y(19.0228743).build())
-                .dayName("SATURDAY")
-                .isDepositRequired(false)
-                .section(20)
-                .build();
-        when(repository.findById(anyString())).thenReturn(Optional.of(new Atm("2", 4)));
+        SearchRequest searchRequest = getSearchRequest(false);
+        List<Atm> atmList = getAtmList();
+        when(repository.findAll()).thenReturn(atmList);
 
         List<AtmResponse> result = service.getAllAtmWithAllInfo(searchRequest);
 
         assertNotNull(result);
         assertEquals(3, result.size());
-        assertEquals(4L, result.get(0).countOfFutureCustomers.longValue());
         assertEquals(false, result.get(0).isDepositAvailable);
         assert(result.get(0).queueAndTravelTime.contains("min"));
+    }
+
+    private SearchRequest getSearchRequest(Boolean isDepositRequired) {
+        return SearchRequest.builder()
+                .coord(Coord.builder().x(47.4648836).y(19.0228743).build())
+                .dayName("SATURDAY")
+                .isDepositRequired(isDepositRequired)
+                .section(20)
+                .build();
+    }
+
+    private List<Atm> getAtmList() {
+        List<Atm> atmList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            atmList.add(new Atm(Integer.toString(i), 1));
+        }
+        return atmList;
     }
 
 }

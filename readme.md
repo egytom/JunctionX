@@ -1,13 +1,18 @@
+Existing Repository for this project:
+https://github.com/egytom/JunctionX.git 
+ 
+ 
+ 
 `minikube start --vm-driver kvm2`
 
-or 
+or  
 
 `minikube config set vm-driver kvm2`
 `minikube start`
 
 `kubectl create clusterrolebinding admin --clusterrole=cluster-admin --serviceaccount=default:default`
 
-from project root:
+from project root: 
 
 `kubectl apply -f kubernetes/mongodb-configmap.yaml`
 `kubectl apply -f kubernetes/mongodb-secret.yaml`
@@ -16,7 +21,5 @@ from project root:
 `kubectl apply -f kubernetes/atm-finder-deployment.yaml`
 `kubectl apply -f kubernetes/ingress.yaml`
 
-http://localhost:8081/swagger-ui.html#/
-http://localhost:8081/atm-finder/all-atm/{deposit}
-
-deposit = true/false
+http://localhost:8081/swagger-ui.html#/ 
+http://localhost:8081/atm-finder/... 
